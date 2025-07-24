@@ -32,12 +32,12 @@
             label1 = new Label();
             clbQuyen = new CheckedListBox();
             label2 = new Label();
-            btnLuu = new Button();
-            btnTaiLai = new Button();
             txtTimKiem = new TextBox();
             label3 = new Label();
-            btnTimKiem = new Button();
             lblThongBao = new Label();
+            btnTaiLai = new FontAwesome.Sharp.IconButton();
+            btnLuu = new FontAwesome.Sharp.IconButton();
+            btnTimKiem = new FontAwesome.Sharp.IconButton();
             SuspendLayout();
             // 
             // cmbVaiTro
@@ -77,28 +77,6 @@
             label2.TabIndex = 5;
             label2.Text = "*Quyền";
             // 
-            // btnLuu
-            // 
-            btnLuu.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnLuu.Location = new Point(280, 384);
-            btnLuu.Name = "btnLuu";
-            btnLuu.Size = new Size(75, 32);
-            btnLuu.TabIndex = 6;
-            btnLuu.Text = "Lưu";
-            btnLuu.UseVisualStyleBackColor = true;
-            btnLuu.Click += btnLuu_Click;
-            // 
-            // btnTaiLai
-            // 
-            btnTaiLai.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnTaiLai.Location = new Point(709, 384);
-            btnTaiLai.Name = "btnTaiLai";
-            btnTaiLai.Size = new Size(75, 32);
-            btnTaiLai.TabIndex = 7;
-            btnTaiLai.Text = "Tải lại";
-            btnTaiLai.UseVisualStyleBackColor = true;
-            btnTaiLai.Click += btnTaiLai_Click;
-            // 
             // txtTimKiem
             // 
             txtTimKiem.Location = new Point(621, 41);
@@ -116,17 +94,6 @@
             label3.TabIndex = 9;
             label3.Text = "*Tìm kiếm";
             // 
-            // btnTimKiem
-            // 
-            btnTimKiem.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnTimKiem.Location = new Point(489, 384);
-            btnTimKiem.Name = "btnTimKiem";
-            btnTimKiem.Size = new Size(88, 32);
-            btnTimKiem.TabIndex = 10;
-            btnTimKiem.Text = "Tìm kiếm";
-            btnTimKiem.UseVisualStyleBackColor = true;
-            btnTimKiem.Click += btnTimKiem_Click;
-            // 
             // lblThongBao
             // 
             lblThongBao.AutoSize = true;
@@ -137,17 +104,74 @@
             lblThongBao.TabIndex = 11;
             lblThongBao.Text = "label4";
             // 
+            // btnTaiLai
+            // 
+            btnTaiLai.BackColor = Color.Blue;
+            btnTaiLai.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnTaiLai.ForeColor = Color.White;
+            btnTaiLai.IconChar = FontAwesome.Sharp.IconChar.SyncAlt;
+            btnTaiLai.IconColor = Color.White;
+            btnTaiLai.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            btnTaiLai.IconSize = 20;
+            btnTaiLai.ImageAlign = ContentAlignment.MiddleLeft;
+            btnTaiLai.Location = new Point(701, 385);
+            btnTaiLai.Name = "btnTaiLai";
+            btnTaiLai.Size = new Size(83, 33);
+            btnTaiLai.TabIndex = 71;
+            btnTaiLai.Text = "Tải lại";
+            btnTaiLai.TextAlign = ContentAlignment.MiddleRight;
+            btnTaiLai.UseVisualStyleBackColor = false;
+            btnTaiLai.Click += btnTaiLai_Click;
+            // 
+            // btnLuu
+            // 
+            btnLuu.BackColor = Color.Blue;
+            btnLuu.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnLuu.ForeColor = Color.White;
+            btnLuu.IconChar = FontAwesome.Sharp.IconChar.Save;
+            btnLuu.IconColor = Color.White;
+            btnLuu.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            btnLuu.IconSize = 20;
+            btnLuu.ImageAlign = ContentAlignment.MiddleLeft;
+            btnLuu.Location = new Point(280, 385);
+            btnLuu.Name = "btnLuu";
+            btnLuu.Size = new Size(80, 31);
+            btnLuu.TabIndex = 72;
+            btnLuu.Text = "Lưu";
+            btnLuu.TextAlign = ContentAlignment.MiddleRight;
+            btnLuu.UseVisualStyleBackColor = false;
+            btnLuu.Click += btnLuu_Click;
+            // 
+            // btnTimKiem
+            // 
+            btnTimKiem.BackColor = Color.Blue;
+            btnTimKiem.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnTimKiem.ForeColor = Color.White;
+            btnTimKiem.IconChar = FontAwesome.Sharp.IconChar.Search;
+            btnTimKiem.IconColor = Color.White;
+            btnTimKiem.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            btnTimKiem.IconSize = 20;
+            btnTimKiem.ImageAlign = ContentAlignment.MiddleLeft;
+            btnTimKiem.Location = new Point(484, 387);
+            btnTimKiem.Name = "btnTimKiem";
+            btnTimKiem.Size = new Size(99, 31);
+            btnTimKiem.TabIndex = 73;
+            btnTimKiem.Text = "Tìm kiếm";
+            btnTimKiem.TextAlign = ContentAlignment.MiddleRight;
+            btnTimKiem.UseVisualStyleBackColor = false;
+            btnTimKiem.Click += btnTimKiem_Click;
+            // 
             // UcPhanQuyen
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.White;
-            Controls.Add(lblThongBao);
             Controls.Add(btnTimKiem);
+            Controls.Add(btnLuu);
+            Controls.Add(btnTaiLai);
+            Controls.Add(lblThongBao);
             Controls.Add(label3);
             Controls.Add(txtTimKiem);
-            Controls.Add(btnTaiLai);
-            Controls.Add(btnLuu);
             Controls.Add(label2);
             Controls.Add(clbQuyen);
             Controls.Add(label1);
@@ -163,11 +187,11 @@
         private Label label1;
         private CheckedListBox clbQuyen;
         private Label label2;
-        private Button btnLuu;
-        private Button btnTaiLai;
         private TextBox txtTimKiem;
         private Label label3;
-        private Button btnTimKiem;
         private Label lblThongBao;
+        private FontAwesome.Sharp.IconButton btnTaiLai;
+        private FontAwesome.Sharp.IconButton btnLuu;
+        private FontAwesome.Sharp.IconButton btnTimKiem;
     }
 }

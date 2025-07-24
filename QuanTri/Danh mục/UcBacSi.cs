@@ -33,7 +33,7 @@ namespace Do_An1.QuanTri
             int offset = (currentPage - 1) * pageSize;
 
             string countQuery = "SELECT COUNT(*) FROM BacSi WHERE TrangThai = 1";
-            totalRecords = Convert.ToInt32(Connect.ExecuteScalar(countQuery));
+            totalRecords = Convert.ToInt32(value: Connect.ExecuteScalar(countQuery));
             totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
 
             string query = @"

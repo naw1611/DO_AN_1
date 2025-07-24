@@ -54,6 +54,10 @@
               "target": "Package",
               "version": "[0.105.0, )"
             },
+            "EPPlus": {
+              "target": "Package",
+              "version": "[8.0.7, )"
+            },
             "FontAwesome.Sharp": {
               "target": "Package",
               "version": "[6.6.0, )"
@@ -66,9 +70,17 @@
               "target": "Package",
               "version": "[6.0.2, )"
             },
+            "Microsoft.Office.Interop.Excel": {
+              "target": "Package",
+              "version": "[15.0.4795.1001, )"
+            },
             "Microsoft.Office.Interop.Word": {
               "target": "Package",
               "version": "[15.0.4797.1004, )"
+            },
+            "WinForms.DataVisualization": {
+              "target": "Package",
+              "version": "[1.10.0, )"
             }
           },
           "imports": [

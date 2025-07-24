@@ -254,9 +254,9 @@ namespace Do_An1.QuanTri.Kho_thuốc
                         }
 
                         int tongSoDong = dgvChiTietNhap.Rows.Count + 2;
-                        worksheet.Cell(tongSoDong, 1).Value = "Tổng tiền:";
+                        worksheet.Cell(tongSoDong, 1).Value = "";
                         worksheet.Cell(tongSoDong, 2).Value = lblTongTien.Text;
-                        worksheet.Range(tongSoDong, 1, tongSoDong, 2).Style.Font.Bold = true;
+                        worksheet.Range(tongSoDong, 1 , tongSoDong , 2).Style.Font.Bold = true;
                         worksheet.Columns().AdjustToContents();
                         workbook.SaveAs(sfd.FileName);
                     }

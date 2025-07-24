@@ -19,6 +19,7 @@ namespace Do_An1.QuanTri.Khám
         {
             InitializeComponent();
             LoadDanhSachHoaDon();
+            if (cmbTrangThai.Items.Count > 0) cmbTrangThai.SelectedIndex = 0;
         }
 
         private void LoadDanhSachHoaDon()
@@ -35,37 +36,58 @@ namespace Do_An1.QuanTri.Khám
             if (!string.IsNullOrEmpty(keyword))
                 condition += " AND bn.HoTen LIKE N'%" + keyword + "%'";
 
-            string queryCount = $@"
-        SELECT COUNT(*)
+            try
+            {
+                string queryCount = $@"
+    SELECT COUNT(*)
+    FROM HoaDon hd
+    JOIN BenhNhan bn ON hd.MaBenhNhan = bn.MaBN
+    WHERE 1=1 {condition}";
+                totalRecords = Convert.ToInt32(Connect.ExecuteScalar(queryCount) ?? 0);
+                totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+                int offset = (currentPage - 1) * pageSize;
+
+                string query = $@"
+    SELECT TOP {pageSize} * FROM (
+        SELECT ROW_NUMBER() OVER (ORDER BY hd.NgayTao DESC) AS RowNum,
+               hd.MaHoaDon, bn.HoTen, hd.NgayTao, hd.TienKham, hd.TienThuoc,
+               hd.GiamGia, hd.TongTien, hd.HinhThucThanhToan, hd.DaThanhToan, hd.GhiChu
         FROM HoaDon hd
         JOIN BenhNhan bn ON hd.MaBenhNhan = bn.MaBN
-        WHERE 1=1 {condition}";
-            totalRecords = (int)Connect.ExecuteScalar(queryCount);
-            totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+        WHERE 1=1 {condition}
+    ) AS temp
+    WHERE RowNum > {offset}";
 
-            int offset = (currentPage - 1) * pageSize;
+                DataTable dt = Connect.ExecuteQuery(query);
+                // Thêm cột hiển thị trạng thái
+                if (!dt.Columns.Contains("TrangThaiHienThi"))
+                    dt.Columns.Add("TrangThaiHienThi", typeof(string));
+                foreach (DataRow row in dt.Rows)
+                {
+                    row["TrangThaiHienThi"] = Convert.ToBoolean(row["DaThanhToan"]) ? "Đã thanh toán" : "Chưa thanh toán";
+                }
+                dgvHoaDon.DataSource = dt;
+                // Đảm bảo cột hiển thị được ánh xạ đúng
+                if (dgvHoaDon.Columns["TrangThaiHienThi"] == null)
+                {
+                    dgvHoaDon.Columns.Add("TrangThaiHienThi", "Trạng thái");
+                    dgvHoaDon.Columns["TrangThaiHienThi"].Width = 100;
+                }
+                dgvHoaDon.Columns["TrangThaiHienThi"].DataPropertyName = "TrangThaiHienThi";
+                lblTrang.Text = $"Trang {currentPage}/{totalPages}";
 
-            string query = $@"
-        SELECT TOP {pageSize} * FROM (
-            SELECT ROW_NUMBER() OVER (ORDER BY hd.NgayTao DESC) AS RowNum,
-                   hd.MaHoaDon, bn.HoTen, hd.NgayTao, hd.TienKham, hd.TienThuoc,
-                   hd.GiamGia, hd.TongTien,hd.HinhThucThanhToan, hd.DaThanhToan, hd.GhiChu
-            FROM HoaDon hd
-            JOIN BenhNhan bn ON hd.MaBenhNhan = bn.MaBN
-            WHERE 1=1 {condition}
-        ) AS temp
-        WHERE RowNum > {offset}";
-
-            dgvHoaDon.DataSource = Connect.ExecuteQuery(query);
-            lblTrang.Text = $"Trang {currentPage}/{totalPages}";
-        }
-
-
-
-        private void btnTraCuu_Click(object sender, EventArgs e)
-        {
-
-            LoadDanhSachHoaDon();
+                // Cập nhật giá trị trên giao diện khi chọn hóa đơn
+                if (dgvHoaDon.CurrentRow != null)
+                {
+                    txtTienKham.Text = (Convert.ToDecimal(dgvHoaDon.CurrentRow.Cells["TienKham"].Value ?? 0)).ToString("N0");
+                    txtGiamGia.Text = (Convert.ToDecimal(dgvHoaDon.CurrentRow.Cells["GiamGia"].Value ?? 0)).ToString("N0");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi tải danh sách hóa đơn: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnThanhToan_Click(object sender, EventArgs e)
@@ -76,52 +98,123 @@ namespace Do_An1.QuanTri.Khám
                 return;
             }
 
-            int maHoaDon = Convert.ToInt32(dgvHoaDon.CurrentRow.Cells["MaHoaDon"].Value);
-            bool daThanhToan = Convert.ToBoolean(dgvHoaDon.CurrentRow.Cells["DaThanhToan"].Value);
-
-            if (daThanhToan)
+            try
             {
-                MessageBox.Show("Hóa đơn này đã được thanh toán trước đó!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
+                int maHoaDon = Convert.ToInt32(dgvHoaDon.CurrentRow.Cells["MaHoaDon"].Value);
+                bool daThanhToan = Convert.ToBoolean(dgvHoaDon.CurrentRow.Cells["DaThanhToan"].Value);
+
+                if (daThanhToan)
+                {
+                    MessageBox.Show("Hóa đơn này đã được thanh toán trước đó!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                decimal tienKham = string.IsNullOrEmpty(txtTienKham.Text) ? 0 : Convert.ToDecimal(txtTienKham.Text.Replace(".", ""));
+                decimal giamGia = string.IsNullOrEmpty(txtGiamGia.Text) ? 0 : Convert.ToDecimal(txtGiamGia.Text.Replace(".", ""));
+                decimal tienThuoc = Convert.ToDecimal(dgvHoaDon.CurrentRow.Cells["TienThuoc"].Value ?? 0);
+                decimal tongTien = (tienKham + tienThuoc) - giamGia;
+                if (tongTien < 0) tongTien = 0;
+
+                string query = @"
+                    UPDATE HoaDon 
+                    SET TienKham = @TienKham, GiamGia = @GiamGia, DaThanhToan = 1 
+                    WHERE MaHoaDon = @MaHoaDon";
+                SqlParameter[] parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@TienKham", SqlDbType.Decimal) { Value = tienKham },
+                    new SqlParameter("@GiamGia", SqlDbType.Decimal) { Value = giamGia },
+                    new SqlParameter("@MaHoaDon", SqlDbType.Int) { Value = maHoaDon }
+                };
+
+                int rows = Connect.ExecuteNonQuery(query, parameters);
+                if (rows > 0)
+                {
+                    MessageBox.Show($"Thanh toán thành công! Tổng tiền sau giảm giá: {tongTien:N0} VNĐ", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadDanhSachHoaDon();
+                }
+                else
+                {
+                    MessageBox.Show("Thanh toán thất bại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
-
-            DialogResult result = MessageBox.Show("Bạn có chắc muốn thanh toán hóa đơn này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-            if (result == DialogResult.No)
-                return;
-
-            string query = "UPDATE HoaDon SET DaThanhToan = 1 WHERE MaHoaDon = @maHoaDon";
-
-            SqlParameter[] parameters = new SqlParameter[]
+            catch (Exception ex)
             {
-        new SqlParameter("@maHoaDon", maHoaDon)
-            };
-
-            int rows = Connect.ExecuteNonQuery(query, parameters);
-            if (rows > 0)
-            {
-                MessageBox.Show("Thanh toán thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadDanhSachHoaDon();
-            }
-            else
-            {
-                MessageBox.Show("Thanh toán thất bại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show($"Lỗi khi thanh toán: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        private void btnCapNhat_Click(object sender, EventArgs e)
+        {
+            if (dgvHoaDon.CurrentRow == null)
+            {
+                MessageBox.Show("Vui lòng chọn hóa đơn để cập nhật!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                int maHoaDon = Convert.ToInt32(dgvHoaDon.CurrentRow.Cells["MaHoaDon"].Value);
+                decimal tienKham = string.IsNullOrEmpty(txtTienKham.Text) ? 0 : Convert.ToDecimal(txtTienKham.Text.Replace(".", ""));
+                decimal giamGia = string.IsNullOrEmpty(txtGiamGia.Text) ? 0 : Convert.ToDecimal(txtGiamGia.Text.Replace(".", ""));
+                decimal tienThuoc = Convert.ToDecimal(dgvHoaDon.CurrentRow.Cells["TienThuoc"].Value ?? 0);
+                decimal tongTien = (tienKham + tienThuoc) - giamGia;
+                if (tongTien < 0) tongTien = 0;
+
+                string query = @"
+                    UPDATE HoaDon 
+                    SET TienKham = @TienKham, GiamGia = @GiamGia 
+                    WHERE MaHoaDon = @MaHoaDon";
+                SqlParameter[] parameters = new SqlParameter[]
+                {
+                    new SqlParameter("@TienKham", SqlDbType.Decimal) { Value = tienKham },
+                    new SqlParameter("@GiamGia", SqlDbType.Decimal) { Value = giamGia },
+                    new SqlParameter("@MaHoaDon", SqlDbType.Int) { Value = maHoaDon }
+                };
+
+                int rows = Connect.ExecuteNonQuery(query, parameters);
+                if (rows > 0)
+                {
+                    MessageBox.Show("Cập nhật thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    LoadDanhSachHoaDon();
+                }
+                else
+                {
+                    MessageBox.Show("Cập nhật thất bại!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi cập nhật: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnTraCuu_Click(object sender, EventArgs e)
+        {
+            currentPage = 1;
+            LoadDanhSachHoaDon();
+        }
 
         private void btnXemChiTiet_Click(object sender, EventArgs e)
         {
             if (dgvHoaDon.CurrentRow == null)
             {
-                MessageBox.Show("Vui lòng chọn hóa đơn để xem chi tiết!", "Thông báo");
+                MessageBox.Show("Vui lòng chọn hóa đơn để xem chi tiết!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            int maHoaDon = Convert.ToInt32(dgvHoaDon.CurrentRow.Cells["MaHoaDon"].Value);
-            FormChiTietDonThuoc form = new FormChiTietDonThuoc(maHoaDon);
-            form.ShowDialog();
+            try
+            {
+                int maHoaDon = Convert.ToInt32(dgvHoaDon.CurrentRow.Cells["MaHoaDon"].Value);
+                // Giả sử có FormChiTietDonThuoc để xem chi tiết
+                FormChiTietDonThuoc form = new FormChiTietDonThuoc(maHoaDon);
+                form.ShowDialog();
+                LoadDanhSachHoaDon();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi xem chi tiết: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-
 
         private void btnPrev_Click(object sender, EventArgs e)
         {
@@ -141,9 +234,9 @@ namespace Do_An1.QuanTri.Khám
             }
         }
 
-
         private void cmbTrangThai_SelectedIndexChanged(object sender, EventArgs e)
         {
+            currentPage = 1;
             LoadDanhSachHoaDon();
         }
 
@@ -151,14 +244,15 @@ namespace Do_An1.QuanTri.Khám
         {
             txtTimKiem.Clear();
             cmbTrangThai.SelectedIndex = -1;
+            currentPage = 1;
             LoadDanhSachHoaDon();
         }
 
         private void btnXuatHD_Click(object sender, EventArgs e)
         {
-            if (dgvHoaDon.Rows.Count == 0)
+            if (dgvHoaDon.CurrentRow == null)
             {
-                MessageBox.Show("Không có dữ liệu để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Vui lòng chọn hóa đơn để xuất!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -175,34 +269,35 @@ namespace Do_An1.QuanTri.Khám
                 {
                     using (var workbook = new XLWorkbook())
                     {
-                        var worksheet = workbook.Worksheets.Add("DanhSachHoaDon");
+                        var worksheet = workbook.Worksheets.Add("ChiTietHoaDon");
 
                         int colIndex = 1;
-                        // Ghi header, bỏ cột Button (nếu có)
-                        for (int i = 0; i < dgvHoaDon.Columns.Count; i++)
+                        // Ghi header
+                        foreach (DataGridViewColumn column in dgvHoaDon.Columns)
                         {
-                            if (dgvHoaDon.Columns[i] is DataGridViewButtonColumn) continue;
-
-                            worksheet.Cell(1, colIndex).Value = dgvHoaDon.Columns[i].HeaderText;
+                            if (column is DataGridViewButtonColumn) continue;
+                            worksheet.Cell(1, colIndex).Value = column.HeaderText;
                             worksheet.Cell(1, colIndex).Style.Font.Bold = true;
                             worksheet.Cell(1, colIndex).Style.Fill.BackgroundColor = XLColor.LightGray;
                             worksheet.Cell(1, colIndex).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                             colIndex++;
                         }
 
-                        // Ghi dữ liệu
-                        for (int i = 0; i < dgvHoaDon.Rows.Count; i++)
+                        // Ghi dữ liệu của dòng được chọn
+                        DataGridViewRow selectedRow = dgvHoaDon.CurrentRow;
+                        colIndex = 1;
+                        for (int j = 0; j < dgvHoaDon.Columns.Count; j++)
                         {
-                            colIndex = 1;
-                            for (int j = 0; j < dgvHoaDon.Columns.Count; j++)
-                            {
-                                if (dgvHoaDon.Columns[j] is DataGridViewButtonColumn) continue;
-
-                                var value = dgvHoaDon.Rows[i].Cells[j].FormattedValue?.ToString();
-                                worksheet.Cell(i + 2, colIndex).Value = value;
-                                worksheet.Cell(i + 2, colIndex).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                                colIndex++;
-                            }
+                            if (dgvHoaDon.Columns[j] is DataGridViewButtonColumn) continue;
+                            var value = selectedRow.Cells[j].FormattedValue?.ToString();
+                            if (dgvHoaDon.Columns[j].Name == "NgayTao" && DateTime.TryParse(value, out DateTime date))
+                                worksheet.Cell(2, colIndex).Value = date.ToString("dd/MM/yyyy HH:mm");
+                            else if (dgvHoaDon.Columns[j].Name.Contains("Tien") && decimal.TryParse(value, out decimal money))
+                                worksheet.Cell(2, colIndex).Style.NumberFormat.Format = "#,##0 VNĐ";
+                            else
+                                worksheet.Cell(2, colIndex).Value = value;
+                            worksheet.Cell(2, colIndex).Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                            colIndex++;
                         }
 
                         worksheet.Columns().AdjustToContents();
@@ -217,7 +312,5 @@ namespace Do_An1.QuanTri.Khám
                 }
             }
         }
-
     }
 }
-

@@ -13,13 +13,22 @@
     <Compile Update="NhanVien\FormNhanVien.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="QuanTri\Báo cáo , thống kê\UcBaoCaoDoanhThu.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="QuanTri\Báo cáo , thống kê\UcThongKeHoatDong.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="QuanTri\Báo cáo , thống kê\UcThongKeSoLuotKham.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="QuanTri\Danh mục\FormSuaThuoc.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="QuanTri\Danh mục\FormThemThuoc.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Update="QuanTri\FormAdmin.cs">
+    <Compile Update="QuanTri\FrmMain.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="QuanTri\Danh mục\UcBacSi.cs">

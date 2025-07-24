@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Do_An1.Helpers;
+﻿using Do_An1.Helpers;
 using Microsoft.Data.SqlClient;
-using System.Drawing.Printing;
+using System;
+using System.Data;
+using System.Windows.Forms;
 
 namespace Do_An1.QuanTri
 {
@@ -19,6 +12,7 @@ namespace Do_An1.QuanTri
         {
             InitializeComponent();
             LoadDanhSachBenhNhan();
+            // Đặt chiều cao DataGridView dựa trên số hàng hiển thị
             dgvBenhNhan.Height = dgvBenhNhan.Rows.GetRowsHeight(DataGridViewElementStates.Visible)
                         + dgvBenhNhan.ColumnHeadersHeight;
         }
@@ -48,7 +42,13 @@ namespace Do_An1.QuanTri
         new SqlParameter("@Offset", offset),
         new SqlParameter("@PageSize", pageSize)
     };
-            dgvBenhNhan.DataSource = Connect.ExecuteQuery(query, prms);
+            DataTable dt = Connect.ExecuteQuery(query, prms);
+            // Chuyển đổi "M"/"F" thành "Nam"/"Nữ" cho cột GioiTinh trong DataGridView
+            foreach (DataRow row in dt.Rows)
+            {
+                row["GioiTinh"] = row["GioiTinh"].ToString() == "M" ? "Nam" : "Nữ";
+            }
+            dgvBenhNhan.DataSource = dt;
             lblTrang.Text = $"Trang {currentPage}/{totalPages}";
         }
 
@@ -63,26 +63,27 @@ namespace Do_An1.QuanTri
             rtbTienSu.Clear();
             dtpNgaySinh.Value = DateTime.Now;
             dtpNgayDangKy.Value = DateTime.Now;
-            cboGioiTinh.SelectedIndex = 0;
+            cboGioiTinh.SelectedIndex = -1; // Không chọn mặc định
             cbTrangThai.Checked = false;
         }
 
         private void btnThem_Click(object sender, EventArgs e)
         {
             string sql = @"
-        INSERT INTO BenhNhan (HoTen, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TienSuBenh, NgheNghiep ,NgayDangKy)
-        VALUES (@HoTen, @NgaySinh, @GioiTinh, @SDT, @Email, @DiaChi, @TienSu, @Nghe , @NgayDangKy)";
+        INSERT INTO BenhNhan (HoTen, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TienSuBenh, NgheNghiep, NgayDangKy)
+        VALUES (@HoTen, @NgaySinh, @GioiTinh, @SDT, @Email, @DiaChi, @TienSu, @Nghe, @NgayDangKy)";
 
+            string gioiTinhDB = cboGioiTinh.SelectedItem.ToString() == "Nam" ? "M" : "F";
             SqlParameter[] prms = {
-        new("@HoTen", txtHoTen.Text.Trim()),
-        new("@NgaySinh", dtpNgaySinh.Value),
-        new("@GioiTinh", cboGioiTinh.SelectedItem.ToString() == "Nam" ? "M" : "F"),
-        new("@SDT", txtSDT.Text.Trim()),
-        new("@Email", txtEmail.Text.Trim()),
-        new("@DiaChi", txtDiaChi.Text.Trim()),
-        new("@TienSu", rtbTienSu.Text.Trim()),
-        new("@Nghe", txtNgheNghiep.Text.Trim()),
-        new("@NgayDangKy", dtpNgayDangKy.Value)
+        new SqlParameter("@HoTen", txtHoTen.Text.Trim()),
+        new SqlParameter("@NgaySinh", dtpNgaySinh.Value),
+        new SqlParameter("@GioiTinh", gioiTinhDB),
+        new SqlParameter("@SDT", txtSDT.Text.Trim()),
+        new SqlParameter("@Email", txtEmail.Text.Trim()),
+        new SqlParameter("@DiaChi", txtDiaChi.Text.Trim()),
+        new SqlParameter("@TienSu", rtbTienSu.Text.Trim()),
+        new SqlParameter("@Nghe", txtNgheNghiep.Text.Trim()),
+        new SqlParameter("@NgayDangKy", dtpNgayDangKy.Value)
     };
 
             Connect.ExecuteNonQuery(sql, prms);
@@ -90,7 +91,6 @@ namespace Do_An1.QuanTri
             ResetForm();
             LoadDanhSachBenhNhan();
         }
-
 
         private void btnSua_Click(object sender, EventArgs e)
         {
@@ -103,20 +103,21 @@ namespace Do_An1.QuanTri
             string sql = @"
         UPDATE BenhNhan
         SET HoTen=@HoTen, NgaySinh=@NgaySinh, GioiTinh=@GioiTinh,
-            SoDienThoai=@SDT, Email=@Email, DiaChi=@DiaChi, TienSuBenh=@TienSu, NgheNghiep=@Nghe , NgayDangKy=@NgayDangKy
+            SoDienThoai=@SDT, Email=@Email, DiaChi=@DiaChi, TienSuBenh=@TienSu, NgheNghiep=@Nghe, NgayDangKy=@NgayDangKy
         WHERE MaBN=@MaBN";
 
+            string gioiTinhDB = cboGioiTinh.SelectedItem.ToString() == "Nam" ? "M" : "F";
             SqlParameter[] prms = {
-        new("@HoTen", txtHoTen.Text.Trim()),
-        new("@NgaySinh", dtpNgaySinh.Value),
-        new("@GioiTinh", cboGioiTinh.Text == "Nam" ? "M" : "F"),
-        new("@SDT", txtSDT.Text.Trim()),
-        new("@Email", txtEmail.Text.Trim()),
-        new("@DiaChi", txtDiaChi.Text.Trim()),
-        new("@TienSu", rtbTienSu.Text.Trim()),
-        new("@Nghe", txtNgheNghiep.Text.Trim()),
-        new("@NgayDangKy", dtpNgayDangKy.Value),
-        new("@MaBN", maBenhNhanDangChon)
+        new SqlParameter("@HoTen", txtHoTen.Text.Trim()),
+        new SqlParameter("@NgaySinh", dtpNgaySinh.Value),
+        new SqlParameter("@GioiTinh", gioiTinhDB),
+        new SqlParameter("@SDT", txtSDT.Text.Trim()),
+        new SqlParameter("@Email", txtEmail.Text.Trim()),
+        new SqlParameter("@DiaChi", txtDiaChi.Text.Trim()),
+        new SqlParameter("@TienSu", rtbTienSu.Text.Trim()),
+        new SqlParameter("@Nghe", txtNgheNghiep.Text.Trim()),
+        new SqlParameter("@NgayDangKy", dtpNgayDangKy.Value),
+        new SqlParameter("@MaBN", maBenhNhanDangChon)
     };
 
             Connect.ExecuteNonQuery(sql, prms);
@@ -124,7 +125,6 @@ namespace Do_An1.QuanTri
             ResetForm();
             LoadDanhSachBenhNhan();
         }
-
 
         private void btnXoa_Click(object sender, EventArgs e)
         {
@@ -141,7 +141,6 @@ namespace Do_An1.QuanTri
             }
         }
 
-
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
             ResetForm();
@@ -152,7 +151,13 @@ namespace Do_An1.QuanTri
         {
             string keyword = txtTimKiem.Text.Trim();
             string query = @"SELECT * FROM BenhNhan WHERE TrangThai = 1 AND (HoTen LIKE @kw OR SoDienThoai LIKE @kw)";
-            dgvBenhNhan.DataSource = Connect.ExecuteQuery(query, new SqlParameter("@kw", "%" + keyword + "%"));
+            DataTable dt = Connect.ExecuteQuery(query, new SqlParameter("@kw", "%" + keyword + "%"));
+            // Chuyển đổi "M"/"F" thành "Nam"/"Nữ"
+            foreach (DataRow row in dt.Rows)
+            {
+                row["GioiTinh"] = row["GioiTinh"].ToString() == "M" ? "Nam" : "Nữ";
+            }
+            dgvBenhNhan.DataSource = dt;
         }
 
         private void btnPrev_Click(object sender, EventArgs e)
@@ -182,16 +187,17 @@ namespace Do_An1.QuanTri
                 maBenhNhanDangChon = Convert.ToInt32(row.Cells["MaBN"].Value);
                 txtHoTen.Text = row.Cells["HoTen"].Value.ToString();
                 dtpNgaySinh.Value = Convert.ToDateTime(row.Cells["NgaySinh"].Value);
-                cboGioiTinh.Text = row.Cells["GioiTinh"].Value.ToString();
+                // Ánh xạ "M"/"F" sang "Nam"/"Nữ" cho ComboBox
+                string gioiTinhDB = row.Cells["GioiTinh"].Value.ToString();
+                cboGioiTinh.SelectedItem = gioiTinhDB == "M" ? "Nam" : "Nữ";
                 txtSDT.Text = row.Cells["SoDienThoai"].Value.ToString();
                 txtEmail.Text = row.Cells["Email"].Value.ToString();
                 txtDiaChi.Text = row.Cells["DiaChi"].Value.ToString();
                 rtbTienSu.Text = row.Cells["TienSuBenh"].Value.ToString();
                 txtNgheNghiep.Text = row.Cells["NgheNghiep"].Value.ToString();
                 dtpNgayDangKy.Value = Convert.ToDateTime(row.Cells["NgayDangKy"].Value);
-                cbTrangThai.Checked = true;
+                cbTrangThai.Checked = Convert.ToBoolean(row.Cells["TrangThai"].Value);
             }
         }
-
     }
 }

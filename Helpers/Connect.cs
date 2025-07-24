@@ -12,6 +12,7 @@ namespace Do_An1.Helpers
         {
             return new SqlConnection(_connectionString);
         }
+
         public static int ExecuteNonQuery(string query, SqlParameter[] prms)
         {
             using (SqlConnection conn = GetConnection())
@@ -21,8 +22,8 @@ namespace Do_An1.Helpers
                 {
                     cmd.Parameters.Add(new SqlParameter(p.ParameterName, p.SqlDbType)
                     {
-                        Value = p.Value
-                    }); // Tạo parameter mới chứ không dùng lại object cũ
+                        Value = p.Value ?? DBNull.Value
+                    });
                 }
 
                 conn.Open();
@@ -62,6 +63,8 @@ namespace Do_An1.Helpers
                         {
                             DataTable dt = new DataTable();
                             adapter.Fill(dt);
+                            if (dt.Rows.Count == 0)
+                                Console.WriteLine("Warning: No data returned from query.");
                             return dt;
                         }
                     }
@@ -70,66 +73,61 @@ namespace Do_An1.Helpers
             catch (SqlException ex)
             {
                 Console.WriteLine($"SQL Error: {ex.Message}\nQuery: {query}\nStackTrace: {ex.StackTrace}");
-                throw;
+                MessageBox.Show($"Lỗi SQL: {ex.Message}", "Lỗi kết nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return new DataTable();
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error: {ex.Message}\nStackTrace: {ex.StackTrace}");
-                throw;
+                MessageBox.Show($"Lỗi hệ thống: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return new DataTable();
             }
         }
+
         public static DataTable ExecuteQuery(string query, SqlParameter[] parameters)
         {
             return ExecuteQuery(query, null, parameters);
         }
+
         public static DataTable ExecuteQuery(string query, SqlParameter prm)
         {
-            return ExecuteQuery(query, null, prm); // Chuyển hướng
+            return ExecuteQuery(query, null, prm);
         }
 
         public static DataTable ExecuteQuery(string query)
         {
-            return ExecuteQuery(query, null, null); // Chuyển hướng
+            return ExecuteQuery(query, null, null);
         }
 
-        public static int ExecuteNonQuery(string query, object[] objects, params SqlParameter[] parameters)
+        public static int ExecuteNonQuery(string query, SqlParameter[] parameters, SqlTransaction transaction)
         {
-            try
+            using (SqlCommand cmd = new SqlCommand(query, transaction.Connection, transaction))
             {
-                Console.WriteLine($"Executing ExecuteNonQuery with query: {query}, parameters count: {parameters?.Length ?? 0}");
-                using (SqlConnection conn = GetConnection())
+                if (parameters != null)
                 {
-                    conn.Open();
-                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    foreach (var param in parameters)
                     {
-                        if (parameters != null)
-                        {
-                            foreach (var param in parameters)
-                            {
-                                if (param.Value == null)
-                                    param.Value = DBNull.Value;
-                            }
-                            cmd.Parameters.AddRange(parameters);
-                        }
-                        return cmd.ExecuteNonQuery();
+                        if (param.Value == null)
+                            param.Value = DBNull.Value;
                     }
+                    cmd.Parameters.AddRange(parameters);
                 }
-            }
-            catch (SqlException ex)
-            {
-                Console.WriteLine($"SQL Error: {ex.Message}\nQuery: {query}\nStackTrace: {ex.StackTrace}");
-                throw;
+                return cmd.ExecuteNonQuery();
             }
         }
 
-        public static object ExecuteScalar(string query, params SqlParameter[] parameters)
+        public static int ExecuteNonQuery(string query, SqlTransaction transaction, params SqlParameter[] parameters)
+        {
+            return ExecuteNonQuery(query, parameters, transaction);
+        }
+
+        // Thêm phương thức ExecuteScalar với SqlParameter[] và không có transaction
+        public static object ExecuteScalar(string query, SqlParameter[] parameters = null)
         {
             try
             {
-                Console.WriteLine($"Executing ExecuteScalar with query: {query}, parameters count: {parameters?.Length ?? 0}");
                 using (SqlConnection conn = GetConnection())
                 {
-                    conn.Open();
                     using (SqlCommand cmd = new SqlCommand(query, conn))
                     {
                         if (parameters != null)
@@ -141,6 +139,7 @@ namespace Do_An1.Helpers
                             }
                             cmd.Parameters.AddRange(parameters);
                         }
+                        conn.Open();
                         return cmd.ExecuteScalar();
                     }
                 }
@@ -148,29 +147,116 @@ namespace Do_An1.Helpers
             catch (SqlException ex)
             {
                 Console.WriteLine($"SQL Error: {ex.Message}\nQuery: {query}\nStackTrace: {ex.StackTrace}");
-                throw;
+                MessageBox.Show($"Lỗi SQL: {ex.Message}", "Lỗi kết nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Lỗi hệ thống: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
             }
         }
 
-        internal static void ExecuteNonQuery(string insertDonThuoc, SqlParameter sqlParameter)
+        // Overload với transaction
+        public static object ExecuteScalar(string query, SqlParameter[] parameters, SqlTransaction transaction)
         {
-            throw new NotImplementedException();
+            using (SqlCommand cmd = new SqlCommand(query, transaction.Connection, transaction))
+            {
+                if (parameters != null)
+                {
+                    foreach (var param in parameters)
+                    {
+                        if (param.Value == null)
+                            param.Value = DBNull.Value;
+                    }
+                    cmd.Parameters.AddRange(parameters);
+                }
+                return cmd.ExecuteScalar();
+            }
         }
 
-        internal static void ExecuteNonQuery(string insertChiTiet, SqlParameter sqlParameter1, SqlParameter sqlParameter2, SqlParameter sqlParameter3, SqlParameter sqlParameter4, SqlParameter sqlParameter5)
+        // Overload với 1 tham số
+        public static object ExecuteScalar(string query, SqlParameter parameter, SqlTransaction transaction)
         {
-            throw new NotImplementedException();
+            return ExecuteScalar(query, new[] { parameter }, transaction);
         }
 
-        internal static void ExecuteNonQuery(string insertLS, SqlParameter sqlParameter1, SqlParameter sqlParameter2, SqlParameter sqlParameter3, SqlParameter sqlParameter4)
+        // Triển khai các phương thức internal bị lỗi
+        internal static void ExecuteNonQuery(string query, SqlParameter sqlParameter)
         {
-            throw new NotImplementedException();
+            using (SqlConnection conn = GetConnection())
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                if (sqlParameter.Value == null)
+                    sqlParameter.Value = DBNull.Value;
+                cmd.Parameters.Add(sqlParameter);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
         }
 
-        internal static void ExecuteNonQuery(string capNhatThuoc, SqlParameter sqlParameter1, SqlParameter sqlParameter2)
+        internal static object ExecuteScalar(string insertPhieu, SqlParameter sqlParameter1, SqlParameter sqlParameter2, SqlParameter sqlParameter3)
         {
-            throw new NotImplementedException();
+            try
+            {
+                using (SqlConnection conn = GetConnection())
+                {
+                    using (SqlCommand cmd = new SqlCommand(insertPhieu, conn))
+                    {
+                        cmd.Parameters.Add(sqlParameter1);
+                        cmd.Parameters.Add(sqlParameter2);
+                        cmd.Parameters.Add(sqlParameter3);
+                        if (sqlParameter1.Value == null) sqlParameter1.Value = DBNull.Value;
+                        if (sqlParameter2.Value == null) sqlParameter2.Value = DBNull.Value;
+                        if (sqlParameter3.Value == null) sqlParameter3.Value = DBNull.Value;
+                        conn.Open();
+                        return cmd.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"SQL Error: {ex.Message}\nQuery: {insertPhieu}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Lỗi SQL: {ex.Message}", "Lỗi kết nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Lỗi hệ thống: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
         }
 
+        internal static object? ExecuteScalar(string queryInsertHoSo, SqlParameter paramInsert)
+        {
+            try
+            {
+                using (SqlConnection conn = GetConnection())
+                {
+                    using (SqlCommand cmd = new SqlCommand(queryInsertHoSo, conn))
+                    {
+                        if (paramInsert.Value == null)
+                            paramInsert.Value = DBNull.Value;
+                        cmd.Parameters.Add(paramInsert);
+                        conn.Open();
+                        return cmd.ExecuteScalar();
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                Console.WriteLine($"SQL Error: {ex.Message}\nQuery: {queryInsertHoSo}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Lỗi SQL: {ex.Message}", "Lỗi kết nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Lỗi hệ thống: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+        }
     }
 }

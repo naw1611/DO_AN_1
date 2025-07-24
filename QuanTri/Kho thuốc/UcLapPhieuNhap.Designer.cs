@@ -42,9 +42,9 @@
             panel2 = new Panel();
             lblTongTien = new Label();
             panel4 = new Panel();
+            btnXuatPN = new FontAwesome.Sharp.IconButton();
             btnHuy = new FontAwesome.Sharp.IconButton();
             btnLuuPhieuNhap = new FontAwesome.Sharp.IconButton();
-            btnXuatPN = new FontAwesome.Sharp.IconButton();
             panel1.SuspendLayout();
             panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvChiTietNhap).BeginInit();
@@ -164,7 +164,7 @@
             dgvChiTietNhap.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvChiTietNhap.Location = new Point(172, 54);
             dgvChiTietNhap.Name = "dgvChiTietNhap";
-            dgvChiTietNhap.Size = new Size(692, 184);
+            dgvChiTietNhap.Size = new Size(583, 184);
             dgvChiTietNhap.TabIndex = 3;
             // 
             // panel2
@@ -196,6 +196,25 @@
             panel4.Name = "panel4";
             panel4.Size = new Size(843, 100);
             panel4.TabIndex = 8;
+            // 
+            // btnXuatPN
+            // 
+            btnXuatPN.BackColor = Color.Blue;
+            btnXuatPN.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnXuatPN.ForeColor = Color.White;
+            btnXuatPN.IconChar = FontAwesome.Sharp.IconChar.FileInvoiceDollar;
+            btnXuatPN.IconColor = Color.White;
+            btnXuatPN.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            btnXuatPN.IconSize = 20;
+            btnXuatPN.ImageAlign = ContentAlignment.MiddleLeft;
+            btnXuatPN.Location = new Point(568, 35);
+            btnXuatPN.Name = "btnXuatPN";
+            btnXuatPN.Size = new Size(145, 31);
+            btnXuatPN.TabIndex = 34;
+            btnXuatPN.Text = "Xuất phiếu nhập";
+            btnXuatPN.TextAlign = ContentAlignment.MiddleRight;
+            btnXuatPN.UseVisualStyleBackColor = false;
+            btnXuatPN.Click += btnXuatPN_Click;
             // 
             // btnHuy
             // 
@@ -234,25 +253,6 @@
             btnLuuPhieuNhap.TextAlign = ContentAlignment.MiddleRight;
             btnLuuPhieuNhap.UseVisualStyleBackColor = false;
             btnLuuPhieuNhap.Click += btnLuuPhieuNhap_Click;
-            // 
-            // btnXuatPN
-            // 
-            btnXuatPN.BackColor = Color.Blue;
-            btnXuatPN.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            btnXuatPN.ForeColor = Color.White;
-            btnXuatPN.IconChar = FontAwesome.Sharp.IconChar.FileInvoiceDollar;
-            btnXuatPN.IconColor = Color.White;
-            btnXuatPN.IconFont = FontAwesome.Sharp.IconFont.Auto;
-            btnXuatPN.IconSize = 20;
-            btnXuatPN.ImageAlign = ContentAlignment.MiddleLeft;
-            btnXuatPN.Location = new Point(568, 35);
-            btnXuatPN.Name = "btnXuatPN";
-            btnXuatPN.Size = new Size(145, 31);
-            btnXuatPN.TabIndex = 34;
-            btnXuatPN.Text = "Xuất phiếu nhập";
-            btnXuatPN.TextAlign = ContentAlignment.MiddleRight;
-            btnXuatPN.UseVisualStyleBackColor = false;
-            btnXuatPN.Click += this.btnXuatPN_Click;
             // 
             // UcLapPhieuNhap
             // 

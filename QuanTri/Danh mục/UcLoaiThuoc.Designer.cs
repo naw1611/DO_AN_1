@@ -282,7 +282,7 @@
             dgvLoaiThuoc.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dgvLoaiThuoc.Location = new Point(135, 52);
             dgvLoaiThuoc.Name = "dgvLoaiThuoc";
-            dgvLoaiThuoc.Size = new Size(373, 181);
+            dgvLoaiThuoc.Size = new Size(358, 181);
             dgvLoaiThuoc.TabIndex = 14;
             // 
             // UcLoaiThuoc

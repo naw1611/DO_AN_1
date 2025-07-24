@@ -166,5 +166,7 @@ namespace Do_An1.QuanTri
                 clbQuyen.Items.Add(new ListItem(tenQuyen, maQuyen), checkedItem);
             }
         }
+
+        
     }
 }

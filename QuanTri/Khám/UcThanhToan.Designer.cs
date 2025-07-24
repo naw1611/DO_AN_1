@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             panel2 = new Panel();
+            txtGiamGia = new TextBox();
+            lblGiamGia = new Label();
+            txtTienKham = new TextBox();
+            lblTienKham = new Label();
             btnLamMoi = new FontAwesome.Sharp.IconButton();
             txtTimKiem = new TextBox();
             label1 = new Label();
@@ -36,6 +40,7 @@
             label7 = new Label();
             cmbTrangThai = new ComboBox();
             panel1 = new Panel();
+            btnCapNhat = new FontAwesome.Sharp.IconButton();
             btnXuatHD = new FontAwesome.Sharp.IconButton();
             btnXemCT = new FontAwesome.Sharp.IconButton();
             btnThanhToan = new FontAwesome.Sharp.IconButton();
@@ -54,6 +59,10 @@
             // panel2
             // 
             panel2.BackColor = Color.White;
+            panel2.Controls.Add(txtGiamGia);
+            panel2.Controls.Add(lblGiamGia);
+            panel2.Controls.Add(txtTienKham);
+            panel2.Controls.Add(lblTienKham);
             panel2.Controls.Add(btnLamMoi);
             panel2.Controls.Add(txtTimKiem);
             panel2.Controls.Add(label1);
@@ -66,6 +75,40 @@
             panel2.Size = new Size(1115, 189);
             panel2.TabIndex = 4;
             // 
+            // txtGiamGia
+            // 
+            txtGiamGia.Location = new Point(697, 66);
+            txtGiamGia.Name = "txtGiamGia";
+            txtGiamGia.Size = new Size(209, 23);
+            txtGiamGia.TabIndex = 77;
+            // 
+            // lblGiamGia
+            // 
+            lblGiamGia.AutoSize = true;
+            lblGiamGia.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblGiamGia.Location = new Point(597, 69);
+            lblGiamGia.Name = "lblGiamGia";
+            lblGiamGia.Size = new Size(75, 20);
+            lblGiamGia.TabIndex = 76;
+            lblGiamGia.Text = "*Giảm giá";
+            // 
+            // txtTienKham
+            // 
+            txtTienKham.Location = new Point(697, 19);
+            txtTienKham.Name = "txtTienKham";
+            txtTienKham.Size = new Size(209, 23);
+            txtTienKham.TabIndex = 75;
+            // 
+            // lblTienKham
+            // 
+            lblTienKham.AutoSize = true;
+            lblTienKham.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            lblTienKham.Location = new Point(597, 22);
+            lblTienKham.Name = "lblTienKham";
+            lblTienKham.Size = new Size(83, 20);
+            lblTienKham.TabIndex = 74;
+            lblTienKham.Text = "*Tiền khám";
+            // 
             // btnLamMoi
             // 
             btnLamMoi.BackColor = Color.Blue;
@@ -76,7 +119,7 @@
             btnLamMoi.IconFont = FontAwesome.Sharp.IconFont.Auto;
             btnLamMoi.IconSize = 20;
             btnLamMoi.ImageAlign = ContentAlignment.MiddleLeft;
-            btnLamMoi.Location = new Point(670, 129);
+            btnLamMoi.Location = new Point(247, 117);
             btnLamMoi.Name = "btnLamMoi";
             btnLamMoi.Size = new Size(98, 31);
             btnLamMoi.TabIndex = 73;
@@ -87,7 +130,7 @@
             // 
             // txtTimKiem
             // 
-            txtTimKiem.Location = new Point(595, 31);
+            txtTimKiem.Location = new Point(172, 19);
             txtTimKiem.Name = "txtTimKiem";
             txtTimKiem.Size = new Size(209, 23);
             txtTimKiem.TabIndex = 72;
@@ -96,7 +139,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label1.Location = new Point(461, 34);
+            label1.Location = new Point(38, 22);
             label1.Name = "label1";
             label1.Size = new Size(111, 20);
             label1.TabIndex = 71;
@@ -112,7 +155,7 @@
             btnTraCuu.IconFont = FontAwesome.Sharp.IconFont.Auto;
             btnTraCuu.IconSize = 20;
             btnTraCuu.ImageAlign = ContentAlignment.MiddleLeft;
-            btnTraCuu.Location = new Point(521, 129);
+            btnTraCuu.Location = new Point(98, 117);
             btnTraCuu.Name = "btnTraCuu";
             btnTraCuu.Size = new Size(98, 31);
             btnTraCuu.TabIndex = 70;
@@ -125,7 +168,7 @@
             // 
             label7.AutoSize = true;
             label7.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            label7.Location = new Point(491, 81);
+            label7.Location = new Point(68, 69);
             label7.Name = "label7";
             label7.Size = new Size(81, 20);
             label7.TabIndex = 66;
@@ -135,7 +178,7 @@
             // 
             cmbTrangThai.FormattingEnabled = true;
             cmbTrangThai.Items.AddRange(new object[] { "Tất cả", "Đã thanh toán", "Chưa thanh toán" });
-            cmbTrangThai.Location = new Point(595, 78);
+            cmbTrangThai.Location = new Point(172, 66);
             cmbTrangThai.Name = "cmbTrangThai";
             cmbTrangThai.Size = new Size(209, 23);
             cmbTrangThai.TabIndex = 65;
@@ -144,6 +187,7 @@
             // panel1
             // 
             panel1.BackColor = Color.White;
+            panel1.Controls.Add(btnCapNhat);
             panel1.Controls.Add(btnXuatHD);
             panel1.Controls.Add(btnXemCT);
             panel1.Controls.Add(btnThanhToan);
@@ -152,6 +196,25 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(1115, 87);
             panel1.TabIndex = 73;
+            // 
+            // btnCapNhat
+            // 
+            btnCapNhat.BackColor = Color.Blue;
+            btnCapNhat.Font = new Font("Segoe UI", 11.25F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            btnCapNhat.ForeColor = Color.White;
+            btnCapNhat.IconChar = FontAwesome.Sharp.IconChar.Upwork;
+            btnCapNhat.IconColor = Color.White;
+            btnCapNhat.IconFont = FontAwesome.Sharp.IconFont.Auto;
+            btnCapNhat.IconSize = 20;
+            btnCapNhat.ImageAlign = ContentAlignment.MiddleLeft;
+            btnCapNhat.Location = new Point(256, 28);
+            btnCapNhat.Name = "btnCapNhat";
+            btnCapNhat.Size = new Size(109, 31);
+            btnCapNhat.TabIndex = 29;
+            btnCapNhat.Text = "Cập nhật";
+            btnCapNhat.TextAlign = ContentAlignment.MiddleRight;
+            btnCapNhat.UseVisualStyleBackColor = false;
+            btnCapNhat.Click += btnCapNhat_Click;
             // 
             // btnXuatHD
             // 
@@ -163,7 +226,7 @@
             btnXuatHD.IconFont = FontAwesome.Sharp.IconFont.Auto;
             btnXuatHD.IconSize = 20;
             btnXuatHD.ImageAlign = ContentAlignment.MiddleLeft;
-            btnXuatHD.Location = new Point(719, 35);
+            btnXuatHD.Location = new Point(841, 28);
             btnXuatHD.Name = "btnXuatHD";
             btnXuatHD.Size = new Size(132, 31);
             btnXuatHD.TabIndex = 28;
@@ -182,7 +245,7 @@
             btnXemCT.IconFont = FontAwesome.Sharp.IconFont.Auto;
             btnXemCT.IconSize = 20;
             btnXemCT.ImageAlign = ContentAlignment.MiddleLeft;
-            btnXemCT.Location = new Point(535, 35);
+            btnXemCT.Location = new Point(657, 28);
             btnXemCT.Name = "btnXemCT";
             btnXemCT.Size = new Size(123, 31);
             btnXemCT.TabIndex = 27;
@@ -201,7 +264,7 @@
             btnThanhToan.IconFont = FontAwesome.Sharp.IconFont.Auto;
             btnThanhToan.IconSize = 20;
             btnThanhToan.ImageAlign = ContentAlignment.MiddleLeft;
-            btnThanhToan.Location = new Point(351, 35);
+            btnThanhToan.Location = new Point(473, 28);
             btnThanhToan.Name = "btnThanhToan";
             btnThanhToan.Size = new Size(109, 31);
             btnThanhToan.TabIndex = 26;
@@ -308,5 +371,10 @@
         private Label label1;
         private FontAwesome.Sharp.IconButton btnXuatHD;
         private FontAwesome.Sharp.IconButton btnLamMoi;
+        private TextBox txtTienKham;
+        private Label lblTienKham;
+        private FontAwesome.Sharp.IconButton btnCapNhat;
+        private TextBox txtGiamGia;
+        private Label lblGiamGia;
     }
 }
